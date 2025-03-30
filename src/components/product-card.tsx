@@ -32,7 +32,7 @@ export const ProductCard: FC<ProductCardProps> = ({
       </div>
 
       <CardMedia
-        className={clsx('max-h-[200px]')}
+        className={clsx('max-h-[200px] md:max-h-[100px]')}
         component="img"
         image={imageUrl}
         alt="Paella dish"
