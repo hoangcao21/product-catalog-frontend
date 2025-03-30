@@ -13,7 +13,7 @@ export const BlockQuote: FC<BlockQuoteProps> = ({ id, className, value }) => {
       id={id}
       className={clsx(
         'blockquote',
-        'text-xl italic font-semibold text-gray-900 bg-orange-100',
+        'text-xs italic font-semibold text-gray-900 bg-orange-100',
         className,
       )}
     >
