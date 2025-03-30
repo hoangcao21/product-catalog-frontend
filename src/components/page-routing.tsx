@@ -1,5 +1,6 @@
 import { AuthPage } from '../pages/auth';
 import { HomePage } from '../pages/home';
+import { ProductDetailPage } from '../pages/product-detail';
 import { SplashPage } from '../pages/splash';
 import { EntryPoint } from './entry-point';
 import { FC } from 'react';
@@ -13,6 +14,10 @@ export const PageRouting: FC = () => {
           <Route index element={<SplashPage />} />
           <Route path="auth" element={<AuthPage />} />
           <Route path="home" element={<HomePage />} />
+          <Route
+            path="product-detail/:productId"
+            element={<ProductDetailPage />}
+          />
         </Route>
       </Routes>
     </BrowserRouter>
