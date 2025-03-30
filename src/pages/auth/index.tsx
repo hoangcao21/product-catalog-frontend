@@ -20,7 +20,7 @@ export const AuthPage: FC = () => {
   });
 
   return (
-    <Container>
+    <Container className={clsx('auth-page')}>
       <Stack
         spacing={2}
         direction={'column'}
