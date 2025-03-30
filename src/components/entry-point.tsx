@@ -1,17 +1,24 @@
-import { FC, useEffect } from 'react';
-import { Outlet, useNavigate } from 'react-router';
+import { EntryPointContext } from '../shared/contexts/entry-point';
+import { Backdrop, CircularProgress } from '@mui/material';
+import { FC, useEffect, useState } from 'react';
+import { Outlet } from 'react-router';
 
 export const EntryPoint: FC = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
+
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    navigate('auth');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // navigate('auth');
   }, []);
 
   return (
-    <div>
+    <EntryPointContext.Provider value={{ loading, setLoading }}>
       <Outlet />
-    </div>
+
+      <Backdrop open={loading}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
+    </EntryPointContext.Provider>
   );
 };
