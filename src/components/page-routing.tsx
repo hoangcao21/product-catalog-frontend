@@ -9,13 +9,20 @@ import {
 } from '../shared/routes';
 import { EntryPoint } from './entry-point';
 import { FC } from 'react';
+import { CookiesProvider } from 'react-cookie';
 import { BrowserRouter, Route, Routes } from 'react-router';
 
 export const PageRouting: FC = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<EntryPoint />}>
+        <Route
+          element={
+            <CookiesProvider defaultSetOptions={{ path: '/' }}>
+              <EntryPoint />
+            </CookiesProvider>
+          }
+        >
           <Route index element={<SplashPage />} />
           <Route path={PATH_PAGE_AUTH} element={<AuthPage />} />
           <Route path={PATH_PAGE_HOME} element={<HomePage />} />
