@@ -1,5 +1,5 @@
 import { BACKEND_URL } from './config';
-import { authUtils } from './cookie';
+import { authUtils } from './utils/auth';
 import Axios, {
   AxiosInstance,
   HttpStatusCode,

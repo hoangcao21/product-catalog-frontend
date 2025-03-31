@@ -1,4 +1,4 @@
-import { AUTH_COOKIE_ID, AUTH_REFRESH_COOKIE_ID } from './config';
+import { AUTH_COOKIE_ID, AUTH_REFRESH_COOKIE_ID } from '../config';
 import Cookies from 'universal-cookie';
 
 const commonCookieOptions = {
@@ -9,6 +9,11 @@ const commonCookieOptions = {
  * Universal Cookies - Cookie helper that haves onChange listener (so helpful)!
  */
 const cookies = new Cookies();
+
+export interface AuthCookies {
+  [AUTH_COOKIE_ID]: string;
+  [AUTH_REFRESH_COOKIE_ID]: string;
+}
 
 /**
  * Authentication Utility - Cookie Storage manipulation object
