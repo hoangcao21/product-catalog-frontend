@@ -30,8 +30,8 @@ const validationSchema = yup
 export const ReviewDialog: FC<ReviewDialogProps> = ({
   id,
   className,
-  productId,
-  userId,
+  // productId,
+  // userId,
   open,
   onClose,
   onSubmit,
