@@ -1,6 +1,6 @@
 import { createContext } from 'react';
 
-export const EntryPointContext = createContext<{
+export const EntryPointContextProvider = createContext<{
   loading: boolean;
-  setLoading?: React.Dispatch<React.SetStateAction<boolean>>;
-}>({ loading: false, setLoading: undefined });
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+}>({ loading: false, setLoading: () => {} });
