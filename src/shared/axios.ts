@@ -34,12 +34,12 @@ axiosInstance.interceptors.request.use((requestConfig) => {
 });
 
 axiosInstance.interceptors.response.use(
-  (response) => response, // Directly return successful responses.
+  (response) => response.data, // Directly return successful responses.
   async (error) => {
     const originalRequest = error.config;
 
     if (
-      error.response.status === HttpStatusCode.Unauthorized &&
+      error.response?.status === HttpStatusCode.Unauthorized &&
       !originalRequest._retry
     ) {
       originalRequest._retry = true; // Mark the request as retried to avoid infinite loops.
@@ -72,6 +72,8 @@ axiosInstance.interceptors.response.use(
         return Promise.reject(refreshError);
       }
     }
+
+    alert(`Some error occurred... ${JSON.stringify(error.response)}`);
 
     return Promise.reject(error); // For all other errors, return the error as is.
   },
