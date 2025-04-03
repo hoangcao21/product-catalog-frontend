@@ -1,84 +1,208 @@
 import { Page } from '../../components/page';
 import { ProductCard } from '../../components/product-card';
 import { SearchBox } from '../../components/search-box';
+import { EntryPointContextProvider } from '../../shared/contexts/entry-point';
+import { PaginatedResponseBody } from '../../shared/dto';
+import { Cursor, CursorHistory } from '../../shared/history/cursor-history';
+import { getProducts, ProductCategory, ProductDto } from './api';
+import Button from '@mui/material/Button';
+import ButtonGroup from '@mui/material/ButtonGroup';
 import Divider from '@mui/material/Divider';
 import clsx from 'clsx';
-import { FC } from 'react';
+import { FC, useContext, useEffect, useMemo, useState } from 'react';
+
+const cursorHistory = new CursorHistory();
+
+const defaultLimit = 10;
 
 export const HomePage: FC = () => {
-  // const entryPointContext = useContext(EntryPointContext);
+  const [products, setProducts] = useState<ProductDto[]>([]);
+
+  const [prevCursor, setPrevCursor] = useState<Cursor>(undefined);
+  const [cursor, setCursor] = useState<Cursor>(undefined);
+  const [nextCursor, setNextCursor] = useState<Cursor>(undefined);
+
+  const [nameFilter, setNameFilter] = useState<string | undefined>(undefined);
+  const [categoryFilter, setCategoryFilter] = useState<ProductCategory>(
+    ProductCategory.Food,
+  );
+
+  const shouldPrevCursorDisabled: boolean = !cursorHistory.exists();
+  const shouldNextCursorDisabled: boolean = !nextCursor;
+
+  console.log('cursorHistory ', cursorHistory);
+
+  const { setLoading } = useContext(EntryPointContextProvider);
+
+  function invokeGetProducts(
+    query: {
+      category: ProductCategory;
+      name?: string;
+      cursor?: string;
+      limit?: number;
+    },
+    callback?: (data: PaginatedResponseBody<ProductDto>) => void,
+  ) {
+    const { category, name, cursor, limit } = query;
+
+    setLoading(true);
+
+    getProducts(category, name, cursor, limit)
+      .then((data: PaginatedResponseBody<ProductDto>) => {
+        setProducts(data.result);
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        callback && callback(data);
+
+        setLoading(false);
+      })
+      .catch(() => {
+        // Force reload to the initial state to avoid edge cases
+        window.location.reload();
+      });
+  }
+
+  const onNext = () => {
+    console.log('next');
+
+    cursorHistory.push(cursor); // Add current cursor to cursor history
+
+    invokeGetProducts(
+      {
+        category: categoryFilter,
+        name: nameFilter,
+        cursor: nextCursor,
+        limit: defaultLimit,
+      },
+      (data) => {
+        const lastCursor = cursorHistory.peek(); // Peek previous cursor from cursor history. For example, if you are at page #2, then last cursor is for getting data for page #1
+
+        setPrevCursor(lastCursor); // To fetch data for previous page based on cursor before cursor of the current page
+
+        setCursor(nextCursor); // current "nextCursor" becomes new cursor
+
+        setNextCursor(data.nextCursor); // To fetch data for next page based on new cursor from backend
+      },
+    );
+  };
+
+  const onPrev = () => {
+    console.log('prev');
+
+    cursorHistory.pop();
+
+    invokeGetProducts(
+      {
+        category: categoryFilter,
+        name: nameFilter,
+        cursor: prevCursor,
+        limit: defaultLimit,
+      },
+      (data) => {
+        const lastCursor = cursorHistory.peek(); // Peek previous cursor from cursor history. For example, if you are at page #2, then last cursor is for getting data for page #1
+
+        setPrevCursor(lastCursor); // To fetch data for previous page based on cursor before cursor of the current page
+
+        setCursor(prevCursor); // current "prevCursor" becomes new cursor
+
+        setNextCursor(data.nextCursor); // To fetch data for next page based on new cursor from backend
+      },
+    );
+  };
+
+  // Initial call to get data from API
+  useEffect(() => {
+    invokeGetProducts({ category: categoryFilter }, (data) => {
+      setPrevCursor(undefined);
+      setNextCursor(data.nextCursor);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Page id="home-page">
-      <SearchBox className={clsx('mb-5 h h-[100px]')} />
+      <SearchBox
+        className={clsx('mb-5 h-[180px]')}
+        defaultCategory={categoryFilter}
+        onSubmit={({ pCategory, pName }) => {
+          setCategoryFilter(pCategory);
+
+          setNameFilter(pName);
+
+          invokeGetProducts(
+            {
+              category: pCategory,
+              name: pName,
+              cursor: undefined,
+              limit: defaultLimit,
+            },
+            (data) => {
+              cursorHistory.reset();
+
+              setPrevCursor(undefined);
+              setNextCursor(data.nextCursor);
+            },
+          );
+        }}
+      />
 
       <Divider />
 
       <div
         className={clsx(
-          'mt-5 overflow-auto max-h-[calc(100%-100px-2.5rem)] md:flex md:flex-row md:flex-wrap md:gap-3',
+          'mt-5 overflow-auto h-[calc(100%-280px-3.75rem)] md:flex md:flex-row md:flex-wrap md:gap-3',
         )}
       >
-        {/* TODO: Use "useMemo" here */}
+        {useMemo(() => {
+          if (!products) {
+            return <span>Nothing to display</span>;
+          }
 
-        <ProductCard
-          name="Fish"
-          category="Food"
-          description="Description"
-          imageUrl="https://media.istockphoto.com/id/1147544807/vector/thumbnail-image-vector-graphic.jpg?s=612x612&w=0&k=20&c=rnCKVbdxqkjlcs3xH87-9gocETqpspHFXu5dIGB4wuM="
-          price="10"
-        />
-        <ProductCard
-          name="Fish"
-          category="Food"
-          description="Description"
-          imageUrl="https://cdn.pixabay.com/photo/2020/02/25/17/54/illustration-4879559_640.png"
-          price="10"
-          className={clsx('mt-3 md:mt-0')}
-        />
-        <ProductCard
-          name="Fish"
-          category="Food"
-          description="Description"
-          imageUrl="https://cdn.pixabay.com/photo/2020/02/25/17/54/illustration-4879559_640.png"
-          price="10"
-          className={clsx('mt-3 md:mt-0')}
-        />
+          if (!products.length) {
+            return <span>No product is available. Sorry :(</span>;
+          }
 
-        <ProductCard
-          name="Fish"
-          category="Food"
-          description="Description"
-          imageUrl="https://cdn.pixabay.com/photo/2020/02/25/17/54/illustration-4879559_640.png"
-          price="10"
-          className={clsx('mt-3 md:mt-0')}
-        />
+          return products.map(
+            (
+              { productId, name, category, description, imageUrl, price },
+              index,
+            ) => (
+              <ProductCard
+                className={clsx(index > 0 && 'max-md:mt-3', 'md:w-[250px]')}
+                key={productId}
+                name={name}
+                category={category}
+                description={description}
+                imageUrl={imageUrl}
+                price={price.toString()}
+              />
+            ),
+          );
+        }, [products])}
+      </div>
 
-        <ProductCard
-          name="Fish"
-          category="Food"
-          description="Description"
-          imageUrl="https://cdn.pixabay.com/photo/2020/02/25/17/54/illustration-4879559_640.png"
-          price="10"
-          className={clsx('mt-3 md:mt-0')}
-        />
+      <div
+        className={clsx(
+          'mt-5 h-[100px] flex flex-row justify-center items-center',
+        )}
+      >
+        <ButtonGroup variant="outlined">
+          <Button
+            className="basis-[50%]"
+            disabled={shouldPrevCursorDisabled}
+            onClick={onPrev}
+          >
+            Previous
+          </Button>
 
-        <ProductCard
-          name="Fish"
-          category="Food"
-          description="Description"
-          imageUrl="https://cdn.pixabay.com/photo/2020/02/25/17/54/illustration-4879559_640.png"
-          price="10"
-          className={clsx('mt-3 md:mt-0')}
-        />
-        <ProductCard
-          name="Fish"
-          category="Food"
-          description="Description"
-          imageUrl="https://cdn.pixabay.com/photo/2020/02/25/17/54/illustration-4879559_640.png"
-          price="10"
-          className={clsx('mt-3 md:mt-0')}
-        />
+          <Button
+            className="basis-[50%]"
+            disabled={shouldNextCursorDisabled}
+            onClick={onNext}
+          >
+            Next
+          </Button>
+        </ButtonGroup>
       </div>
     </Page>
   );
