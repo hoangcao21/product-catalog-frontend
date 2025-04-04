@@ -48,8 +48,6 @@ axiosInstance.interceptors.response.use(
       try {
         await rotateCredentials();
 
-        localStorage.removeItem(IS_AUTH_RETRY_KEY);
-
         return axiosInstance(originalRequest);
       } catch (refreshError) {
         // Handle refresh token errors by clearing stored tokens and redirecting to the login page.
@@ -63,6 +61,8 @@ axiosInstance.interceptors.response.use(
         authUtils.clearAll();
 
         return Promise.reject(refreshError);
+      } finally {
+        localStorage.removeItem(IS_AUTH_RETRY_KEY);
       }
     }
 
