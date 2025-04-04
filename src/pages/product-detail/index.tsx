@@ -26,16 +26,21 @@ export const ProductDetailPage: FC<ProductDetailPageProps> = () => {
   const navigate = useNavigate();
   const params = useParams();
 
+  const invokeGetProductDetail = (productId: string) => {
+    setLoading(true);
+
+    getProductDetail(productId).then((respBody) => {
+      setProductDetail(respBody.result);
+
+      setLoading(false);
+    });
+  };
+
   useEffect(() => {
     if (params.productId) {
-      setLoading(true);
-
-      getProductDetail(params.productId).then((respBody) => {
-        setProductDetail(respBody.result);
-
-        setLoading(false);
-      });
+      invokeGetProductDetail(params.productId);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.productId, setLoading]);
 
   return (
@@ -72,12 +77,16 @@ export const ProductDetailPage: FC<ProductDetailPageProps> = () => {
       {useMemo(() => {
         return (
           <Reviews
+            productId={params.productId!}
             className={clsx('mt-5')}
-            onReviewSent={async () => {}}
+            onReviewSent={async () => {
+              invokeGetProductDetail(params.productId!);
+            }}
             reviews={productDetail?.reviews}
           />
         );
-      }, [productDetail?.reviews])}
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [productDetail?.reviews, params.productId])}
     </Page>
   );
 };

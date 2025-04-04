@@ -9,3 +9,14 @@ export const getProductDetail = (
     `products/${productId}`,
   );
 };
+
+export const postProductReview = (
+  productId: string,
+  rating: number,
+  comment: string,
+): Promise<StandardResponseBody<ProductDto>> => {
+  return axiosInstance.post<unknown, StandardResponseBody<ProductDto>>(
+    `products/${productId}/review`,
+    { rating, comment },
+  );
+};

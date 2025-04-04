@@ -1,4 +1,5 @@
 import { ProductReviewDto } from '../../home/api';
+import { postProductReview } from '../api';
 import { ProductReview } from './product-review';
 import { ReviewDialog } from './review-dialog';
 import EditIcon from '@mui/icons-material/Edit';
@@ -8,6 +9,7 @@ import { FC, useMemo, useState } from 'react';
 
 interface ReviewsProps {
   id?: string;
+  productId: string;
   className?: string;
   reviews?: ProductReviewDto[];
   onReviewSent: () => Promise<void>;
@@ -15,11 +17,26 @@ interface ReviewsProps {
 
 export const Reviews: FC<ReviewsProps> = ({
   id,
+  productId,
   className,
   reviews,
   onReviewSent,
 }) => {
   const [shouldOpenDialog, setShouldOpenDialog] = useState(false);
+
+  const [formDisabled, setFormDisabled] = useState(false);
+
+  const invokePostProductReview = async (
+    productId: string,
+    rating: number,
+    comment: string,
+  ) => {
+    setFormDisabled(true);
+
+    await postProductReview(productId, rating, comment);
+
+    setFormDisabled(false);
+  };
 
   return (
     <div id={id} className={clsx('product-reviews', className)}>
@@ -57,18 +74,21 @@ export const Reviews: FC<ReviewsProps> = ({
       }, [reviews])}
 
       <ReviewDialog
-        productId="id"
-        userId="userId"
+        disabled={formDisabled}
         open={shouldOpenDialog}
         onClose={() => {
           setShouldOpenDialog(false);
         }}
-        onSubmit={async (data) => {
-          console.log('submitData', data);
+        onSubmit={(reset) => {
+          return async (data) => {
+            await invokePostProductReview(productId, data.rating, data.comment);
 
-          setShouldOpenDialog(false);
+            setShouldOpenDialog(false);
 
-          await onReviewSent();
+            reset();
+
+            await onReviewSent();
+          };
         }}
       />
     </div>
