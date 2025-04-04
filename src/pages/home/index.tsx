@@ -32,7 +32,7 @@ export const HomePage: FC = () => {
 
   console.log('cursorHistory ', cursorHistory);
 
-  const { setLoading } = useContext(EntryPointContextProvider);
+  const { setLoading, authPresent } = useContext(EntryPointContextProvider);
 
   function invokeGetProducts(
     query: {
@@ -112,12 +112,15 @@ export const HomePage: FC = () => {
 
   // Initial call to get data from API
   useEffect(() => {
-    invokeGetProducts({ category: categoryFilter }, (data) => {
-      setPrevCursor(undefined);
-      setNextCursor(data.nextCursor);
-    });
+    if (authPresent) {
+      invokeGetProducts({ category: categoryFilter }, (data) => {
+        setPrevCursor(undefined);
+        setNextCursor(data.nextCursor);
+      });
+    }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [authPresent]);
 
   return (
     <Page id="home-page">
