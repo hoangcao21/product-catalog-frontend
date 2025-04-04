@@ -3,4 +3,5 @@ import { createContext } from 'react';
 export const EntryPointContextProvider = createContext<{
   loading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-}>({ loading: false, setLoading: () => {} });
+  authPresent: boolean;
+}>({ loading: false, setLoading: () => {}, authPresent: false });

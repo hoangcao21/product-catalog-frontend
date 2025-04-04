@@ -1,10 +1,8 @@
-import { AUTH_COOKIE_ID } from '../shared/config';
-import { EntryPointContext } from '../shared/contexts/entry-point';
+import { EntryPointContextProvider } from '../shared/contexts/entry-point';
+import { Auth, useAuth } from '../shared/hooks/useAuth';
 import { PATH_PAGE_AUTH, PATH_PAGE_HOME } from '../shared/routes';
-import { AuthCookies } from '../shared/utils/auth';
 import { Backdrop, CircularProgress } from '@mui/material';
 import { FC, useEffect, useState } from 'react';
-import { useCookies } from 'react-cookie';
 import { Outlet, useNavigate } from 'react-router';
 
 /**
@@ -13,12 +11,12 @@ import { Outlet, useNavigate } from 'react-router';
 export const EntryPoint: FC = () => {
   const navigate = useNavigate();
 
-  const [cookies] = useCookies<string, AuthCookies>([AUTH_COOKIE_ID]);
+  const auth: Auth = useAuth();
 
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!cookies?.AUTH_COOKIE_ID) {
+    if (!auth.isValid) {
       console.warn('❌ No authentication credentials is present');
 
       navigate(`/${PATH_PAGE_AUTH}`);
@@ -28,15 +26,17 @@ export const EntryPoint: FC = () => {
       navigate(`/${PATH_PAGE_HOME}`);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cookies?.AUTH_COOKIE_ID]);
+  }, [auth.isValid]);
 
   return (
-    <EntryPointContext.Provider value={{ loading, setLoading }}>
+    <EntryPointContextProvider.Provider
+      value={{ loading, setLoading, authPresent: auth.isValid }}
+    >
       <Outlet />
 
       <Backdrop open={loading}>
         <CircularProgress color="inherit" />
       </Backdrop>
-    </EntryPointContext.Provider>
+    </EntryPointContextProvider.Provider>
   );
 };

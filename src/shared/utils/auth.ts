@@ -15,32 +15,34 @@ export interface AuthCookies {
   [AUTH_REFRESH_COOKIE_ID]: string;
 }
 
+const LOCAL_STORAGE_KEY__IS_CREDENTIALS_SET = 'isCredentialsSet';
+
 /**
  * Authentication Utility - Cookie Storage manipulation object
  */
 export const authUtils = {
-  // Get Access Token
-  getToken: (): string => cookies.get(AUTH_COOKIE_ID),
-  changeToken: (token: string, expiresAt: Date) => {
-    cookies.set(AUTH_COOKIE_ID, token, {
-      ...commonCookieOptions,
-      expires: expiresAt,
-    });
-  },
+  isCredentialsPresent: function () {
+    const isCredentialsSet: boolean = !!localStorage.getItem(
+      LOCAL_STORAGE_KEY__IS_CREDENTIALS_SET,
+    );
 
-  // Get Refresh Token
-  getRefreshToken: (): string => cookies.get(AUTH_REFRESH_COOKIE_ID),
-  changeRefreshToken: (refreshToken: string, expiresAt: Date) => {
-    cookies.set(AUTH_REFRESH_COOKIE_ID, refreshToken, {
-      ...commonCookieOptions,
-      expires: expiresAt,
-    });
+    return isCredentialsSet;
   },
-
+  setCredentialsPresent: function () {
+    localStorage.setItem(LOCAL_STORAGE_KEY__IS_CREDENTIALS_SET, 'present');
+  },
+  removeCredentialsPresent: function () {
+    localStorage.removeItem(LOCAL_STORAGE_KEY__IS_CREDENTIALS_SET);
+  },
   // Clear Access Token and Refresh Token
-  clearTokens: () => {
-    cookies.remove(AUTH_COOKIE_ID, { maxAge: 0, path: '/' });
+  clearAll: function () {
+    cookies.remove(AUTH_COOKIE_ID, { ...commonCookieOptions, maxAge: 0 });
 
-    cookies.remove(AUTH_REFRESH_COOKIE_ID, { maxAge: 0, path: '/' });
+    cookies.remove(AUTH_REFRESH_COOKIE_ID, {
+      ...commonCookieOptions,
+      maxAge: 0,
+    });
+
+    this.removeCredentialsPresent();
   },
 };

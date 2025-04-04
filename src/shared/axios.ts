@@ -1,3 +1,4 @@
+import { rotateCredentials } from '../pages/auth/api';
 import { BACKEND_URL } from './config';
 import { authUtils } from './utils/auth';
 import Axios, {
@@ -12,6 +13,7 @@ export const axiosInstance: AxiosInstance = Axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 });
 
 axiosInstance.interceptors.request.use((requestConfig) => {
@@ -20,10 +22,6 @@ axiosInstance.interceptors.request.use((requestConfig) => {
     headers: {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ...(requestConfig.headers as any),
-
-      Authorization: authUtils.getToken()
-        ? `Bearer ${authUtils.getToken()}`
-        : undefined,
     },
     paramsSerializer(params) {
       return qs.stringify(params);
@@ -33,29 +31,24 @@ axiosInstance.interceptors.request.use((requestConfig) => {
   return newRequestConfig;
 });
 
+const IS_AUTH_RETRY_KEY = 'IS_AUTH_RETRY_KEY';
+
 axiosInstance.interceptors.response.use(
   (response) => response.data, // Directly return successful responses.
   async (error) => {
     const originalRequest = error.config;
 
-    if (
-      error.response?.status === HttpStatusCode.Unauthorized &&
-      !originalRequest._retry
-    ) {
-      originalRequest._retry = true; // Mark the request as retried to avoid infinite loops.
+    const isRetry = !!localStorage.getItem(IS_AUTH_RETRY_KEY);
+
+    console.log('Already retry to refresh? ', isRetry ? 'yes' : 'no');
+
+    if (error.response?.status === HttpStatusCode.Unauthorized && !isRetry) {
+      localStorage.setItem(IS_AUTH_RETRY_KEY, 'present'); // Mark the request as retried to avoid infinite loops.
 
       try {
-        // const refreshToken = authUtils.getRefreshToken();
+        await rotateCredentials();
 
-        // const response = {}; // TODO: Invoke the refresh API from "api.ts"
-
-        // const { accessToken, refreshToken: newRefreshToken } = response.data;
-
-        // authUtils.changeToken(accessToken);
-        // authUtils.changeRefreshToken(newRefreshToken);
-
-        // axiosInstance.defaults.headers.common['Authorization'] =
-        //   `Bearer ${accessToken}`;
+        localStorage.removeItem(IS_AUTH_RETRY_KEY);
 
         return axiosInstance(originalRequest);
       } catch (refreshError) {
@@ -67,7 +60,7 @@ axiosInstance.interceptors.response.use(
         );
 
         // Clear tokens will trigger EntryPointProvider
-        authUtils.clearTokens();
+        authUtils.clearAll();
 
         return Promise.reject(refreshError);
       }
