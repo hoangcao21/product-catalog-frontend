@@ -1,4 +1,4 @@
-export interface StandardResponseBody<R> {
+export interface StandardResponseBody<R = undefined> {
   readonly success: boolean;
   readonly result: R;
 }

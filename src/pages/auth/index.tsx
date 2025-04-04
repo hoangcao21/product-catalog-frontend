@@ -1,7 +1,10 @@
+import { EntryPointContextProvider } from '../../shared/contexts/entry-point';
+import { useAuth } from '../../shared/hooks/useAuth';
+import { login } from './api';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Button, Container, Stack } from '@mui/material';
 import clsx from 'clsx';
-import { FC } from 'react';
+import { FC, useContext } from 'react';
 import { useForm } from 'react-hook-form';
 import { TextFieldElement } from 'react-hook-form-mui';
 import * as yup from 'yup';
@@ -14,6 +17,10 @@ const validationSchema = yup
   .required();
 
 export const AuthPage: FC = () => {
+  const { setLoading } = useContext(EntryPointContextProvider);
+
+  const { setValid } = useAuth();
+
   const { control, handleSubmit } = useForm({
     mode: 'all',
     resolver: yupResolver(validationSchema),
@@ -32,8 +39,15 @@ export const AuthPage: FC = () => {
 
         <form
           className={clsx('flex justify-center items-center')}
-          onSubmit={handleSubmit((data) => console.log(data))}
-          noValidate
+          onSubmit={handleSubmit((data) => {
+            setLoading(true);
+
+            login(data.username, data.password).then(() => {
+              setLoading(false);
+
+              setValid();
+            });
+          })}
         >
           <Stack spacing={2} className={clsx('md:w-2xs')}>
             <TextFieldElement
@@ -44,6 +58,7 @@ export const AuthPage: FC = () => {
             />
 
             <TextFieldElement
+              type="password"
               name={'password'}
               label={'Password'}
               control={control}
