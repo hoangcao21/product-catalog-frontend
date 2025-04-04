@@ -1,4 +1,4 @@
-import { ReviewDto } from '../api';
+import { ProductReviewDto } from '../../home/api';
 import { ProductReview } from './product-review';
 import { ReviewDialog } from './review-dialog';
 import EditIcon from '@mui/icons-material/Edit';
@@ -9,7 +9,7 @@ import { FC, useMemo, useState } from 'react';
 interface ReviewsProps {
   id?: string;
   className?: string;
-  reviews?: ReviewDto[];
+  reviews?: ProductReviewDto[];
   onReviewSent: () => Promise<void>;
 }
 
@@ -45,7 +45,7 @@ export const Reviews: FC<ReviewsProps> = ({
               <ProductReview
                 className={clsx(index > 0 && 'mt-5')}
                 key={val.reviewId}
-                userName={val.userName}
+                userId={val.userId}
                 rating={val.rating}
                 comment={val.comment}
               />

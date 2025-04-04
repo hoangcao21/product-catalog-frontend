@@ -7,6 +7,14 @@ export enum ProductCategory {
   Lifestyle = 'lifestyle',
 }
 
+export interface ProductReviewDto {
+  reviewId: string;
+  productId: string;
+  userId: string;
+  rating: number;
+  comment: string;
+}
+
 export interface ProductDto {
   productId: string;
   name: string;
@@ -14,6 +22,7 @@ export interface ProductDto {
   price: number;
   category: string;
   imageUrl: string;
+  reviews?: ProductReviewDto[];
 }
 
 export const getProducts = (

@@ -173,6 +173,7 @@ export const HomePage: FC = () => {
               <ProductCard
                 className={clsx(index > 0 && 'max-md:mt-3', 'md:w-[250px]')}
                 key={productId}
+                productId={productId}
                 name={name}
                 category={category}
                 description={description}

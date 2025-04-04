@@ -38,7 +38,7 @@ export const Information: FC<InformationProps> = ({
           <Typography variant="h5">{name}</Typography>
           <Typography variant="subtitle1">{category}</Typography>
           <Typography variant="h6">
-            {price ? `${price}` : 'Nothing to display'}
+            {price ? `$${price}` : 'Nothing to display'}
           </Typography>
         </div>
       </div>

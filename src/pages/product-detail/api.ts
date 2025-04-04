@@ -1,8 +1,11 @@
-export interface ReviewDto {
-  reviewId: string;
-  productId: string;
-  userId: string;
-  userName: string;
-  rating: number;
-  comment: string;
-}
+import { axiosInstance } from '../../shared/axios';
+import { StandardResponseBody } from '../../shared/dto';
+import { ProductDto } from '../home/api';
+
+export const getProductDetail = (
+  productId: string,
+): Promise<StandardResponseBody<ProductDto>> => {
+  return axiosInstance.get<unknown, StandardResponseBody<ProductDto>>(
+    `products/${productId}`,
+  );
+};

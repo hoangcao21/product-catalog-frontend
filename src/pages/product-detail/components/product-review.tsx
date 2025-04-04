@@ -6,7 +6,7 @@ import { FC } from 'react';
 interface ProductReviewProps {
   id?: string;
   className?: string;
-  userName: string;
+  userId: string;
   rating: number;
   comment: string;
 }
@@ -14,7 +14,7 @@ interface ProductReviewProps {
 export const ProductReview: FC<ProductReviewProps> = ({
   id,
   className,
-  userName,
+  userId,
   rating,
   comment,
 }) => {
@@ -28,7 +28,7 @@ export const ProductReview: FC<ProductReviewProps> = ({
       )}
     >
       <Typography className={clsx('mb-2!')}>
-        Customer <em>{userName}</em> said:
+        Customer <em>{userId}</em> said:
       </Typography>
 
       <Rating
