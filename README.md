@@ -12,9 +12,3 @@ Simply execute `yarn`.
 Requires that Docker Desktop is up and running.
 
 Simply execute `docker-compose -f ./docker-compose.yml -p 'product-catalog-frontend' up -d`.
-
-
-## Run the application
-Each time you invoke Lambda function, AWS SAM CLI will try to create new Docker container and run the container to simulate API Gateway and Lambda behind the gateway. Note that the API Gateway is fronted by Caddy reverse proxy that server HTTPS request.
-
-Simply execute `yarn dev`. Voila, the application should be up and running.
