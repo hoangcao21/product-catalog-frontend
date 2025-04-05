@@ -15,7 +15,9 @@ export interface AuthCookies {
   [AUTH_REFRESH_COOKIE_ID]: string;
 }
 
-const LOCAL_STORAGE_KEY__IS_CREDENTIALS_SET = 'isCredentialsSet';
+const CREDENTIALS_EXISTING_KEY = 'CREDENTIALS_EXISTING_KEY';
+
+export const CREDENTIALS_CHANGED_EVENT = 'CREDENTIALS_CHANGED_EVENT';
 
 /**
  * Authentication Utility - Cookie Storage manipulation object
@@ -23,16 +25,20 @@ const LOCAL_STORAGE_KEY__IS_CREDENTIALS_SET = 'isCredentialsSet';
 export const authUtils = {
   isCredentialsPresent: function () {
     const isCredentialsSet: boolean = !!localStorage.getItem(
-      LOCAL_STORAGE_KEY__IS_CREDENTIALS_SET,
+      CREDENTIALS_EXISTING_KEY,
     );
 
     return isCredentialsSet;
   },
   setCredentialsPresent: function () {
-    localStorage.setItem(LOCAL_STORAGE_KEY__IS_CREDENTIALS_SET, 'present');
+    localStorage.setItem(CREDENTIALS_EXISTING_KEY, 'present');
+
+    window.dispatchEvent(new Event(CREDENTIALS_CHANGED_EVENT));
   },
   removeCredentialsPresent: function () {
-    localStorage.removeItem(LOCAL_STORAGE_KEY__IS_CREDENTIALS_SET);
+    localStorage.removeItem(CREDENTIALS_EXISTING_KEY);
+
+    window.dispatchEvent(new Event(CREDENTIALS_CHANGED_EVENT));
   },
   // Clear Access Token and Refresh Token
   clearAll: function () {

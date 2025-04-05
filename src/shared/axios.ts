@@ -31,22 +31,32 @@ axiosInstance.interceptors.request.use((requestConfig) => {
   return newRequestConfig;
 });
 
-const IS_AUTH_RETRY_KEY = 'IS_AUTH_RETRY_KEY';
+const REFRESH_TOKEN_IN_PROGRESS_KEY = 'REFRESH_TOKEN_IN_PROGRESS_KEY';
 
 axiosInstance.interceptors.response.use(
   (response) => response.data, // Directly return successful responses.
   async (error) => {
     const originalRequest = error.config;
 
-    const isRetry = !!localStorage.getItem(IS_AUTH_RETRY_KEY);
+    const refreshTokenInProgress = !!localStorage.getItem(
+      REFRESH_TOKEN_IN_PROGRESS_KEY,
+    );
 
-    console.log('Already retry to refresh? ', isRetry ? 'yes' : 'no');
+    console.log(
+      '❓ Already retry to refresh token? ',
+      refreshTokenInProgress ? 'yes' : 'no',
+    );
 
-    if (error.response?.status === HttpStatusCode.Unauthorized && !isRetry) {
-      localStorage.setItem(IS_AUTH_RETRY_KEY, 'present'); // Mark the request as retried to avoid infinite loops.
+    if (
+      error.response?.status === HttpStatusCode.Unauthorized &&
+      !refreshTokenInProgress
+    ) {
+      localStorage.setItem(REFRESH_TOKEN_IN_PROGRESS_KEY, 'present'); // Mark the request as retried to avoid infinite loops.
 
       try {
         await rotateCredentials();
+
+        authUtils.setCredentialsPresent();
 
         // Retry failed previous request after refresh token successfully
         return axiosInstance(originalRequest);
@@ -58,12 +68,12 @@ axiosInstance.interceptors.response.use(
           'Your authentication credentials are expired, you will be redirected to the login page...',
         );
 
+        return Promise.reject(refreshError);
+      } finally {
         // Clear tokens will trigger EntryPointProvider
         authUtils.clearAll();
 
-        return Promise.reject(refreshError);
-      } finally {
-        localStorage.removeItem(IS_AUTH_RETRY_KEY);
+        localStorage.removeItem(REFRESH_TOKEN_IN_PROGRESS_KEY);
       }
     }
 

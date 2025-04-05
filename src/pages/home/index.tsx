@@ -120,7 +120,7 @@ export const HomePage: FC = () => {
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authPresent]);
+  }, []);
 
   return (
     <Page id="home-page">
