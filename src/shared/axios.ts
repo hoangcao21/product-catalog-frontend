@@ -1,5 +1,6 @@
 import { rotateCredentials } from '../pages/auth/api';
 import { BACKEND_URL } from './config';
+import { PATH_PAGE_HOME } from './routes';
 import { authUtils } from './utils/auth';
 import Axios, {
   AxiosInstance,
@@ -57,6 +58,10 @@ axiosInstance.interceptors.response.use(
         await rotateCredentials();
 
         authUtils.setCredentialsPresent();
+
+        if (import.meta.env.PROD) {
+          window.location.replace(`/${PATH_PAGE_HOME}`);
+        }
 
         // Retry failed previous request after refresh token successfully
         return axiosInstance(originalRequest);

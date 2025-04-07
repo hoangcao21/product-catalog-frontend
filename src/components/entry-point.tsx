@@ -25,10 +25,12 @@ export const EntryPoint: FC = () => {
     } else {
       console.log('✅ Authentication credentials is present');
 
-      const isAtPageAuthAlready = location.pathname === `/${PATH_PAGE_AUTH}`;
+      const isAtDefaultPages = [`/${PATH_PAGE_AUTH}`, `/`].includes(
+        location.pathname,
+      );
 
       navigate(
-        `${isAtPageAuthAlready ? `/${PATH_PAGE_HOME}` : location.pathname}`,
+        `${isAtDefaultPages ? `/${PATH_PAGE_HOME}` : location.pathname}`,
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
