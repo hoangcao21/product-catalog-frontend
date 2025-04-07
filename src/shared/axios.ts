@@ -73,11 +73,11 @@ axiosInstance.interceptors.response.use(
           'Your authentication credentials are expired, you will be redirected to the login page...',
         );
 
-        return Promise.reject(refreshError);
-      } finally {
         // Clear tokens will trigger EntryPointProvider
         authUtils.clearAll();
 
+        return Promise.reject(refreshError);
+      } finally {
         localStorage.removeItem(REFRESH_TOKEN_IN_PROGRESS_KEY);
       }
     }
