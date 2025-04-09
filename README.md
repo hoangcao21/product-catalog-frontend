@@ -55,7 +55,7 @@ Current folder structure of this repository.
 To run this project locally, you will need to follow steps below (from top to bottom).
 
 ## Bootstrap backend application first and enable HTTPS locally
-Follow **"Run this project locally"** section of `product-catalog-backend` repository first to bootstrap backend application, then copy `localhost.pem` and `localhost-key.pem` from backend repo to this current directory to be ready to enable HTTPS locally.
+Follow **"Run this project locally"** section of `product-catalog-backend` (https://github.com/hoangcao21/product-catalog-backend) repository first to bootstrap backend application, then copy `localhost.pem` and `localhost-key.pem` from backend repo to this current directory to be ready to enable HTTPS locally.
 
 ## Install required dependencies
 Simply execute `yarn` to install all dependencies.
